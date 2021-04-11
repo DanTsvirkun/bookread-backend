@@ -7,6 +7,7 @@ import { URL } from "url";
 import {
   ISession,
   IJWTPayload,
+  IUserPopulated,
 } from "../helpers/typescript-helpers/interfaces";
 import UserModel from "../REST-entities/user/user.model";
 import SessionModel from "../REST-entities/session/session.model";
@@ -79,14 +80,24 @@ export const login = async (
           expiresIn: process.env.JWT_REFRESH_EXPIRE_TIME,
         }
       );
+      const goingToRead = (data as IUserPopulated).books.filter(
+        (book) => book.pagesFinished === 0
+      );
+      const currentlyReading = (data as IUserPopulated).books.filter((book) => {
+        book.pagesFinished !== 0 && book.pagesFinished !== book.pagesTotal;
+      });
+      const finishedReading = (data as IUserPopulated).books.filter(
+        (book) => book.pagesFinished === book.pagesTotal
+      );
       return res.status(200).send({
         accessToken,
         refreshToken,
         sid: newSession._id,
         userData: {
           email: data?.email,
-          books: data?.books,
-          planning: data?.planning,
+          goingToRead,
+          currentlyReading,
+          finishedReading,
           id: data?._id,
         },
       });

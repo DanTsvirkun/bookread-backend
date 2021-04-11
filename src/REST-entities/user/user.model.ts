@@ -1,5 +1,8 @@
 import mongoose, { Schema } from "mongoose";
-import { IUser } from "../../helpers/typescript-helpers/interfaces";
+import {
+  IUser,
+  IUserPopulated,
+} from "../../helpers/typescript-helpers/interfaces";
 
 const userSchema = new Schema({
   email: String,
@@ -9,4 +12,4 @@ const userSchema = new Schema({
   planning: { type: mongoose.Types.ObjectId, ref: "Planning", default: null },
 });
 
-export default mongoose.model<IUser>("User", userSchema);
+export default mongoose.model<IUser | IUserPopulated>("User", userSchema);

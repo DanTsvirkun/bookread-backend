@@ -226,6 +226,61 @@
           }
         }
       }
+    },
+    "/book/review/{bookId}": {
+      "patch": {
+        "tags": ["Book"],
+        "summary": "Add book's review",
+        "security": [{ "Bearer": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "bookId",
+            "description": "Book's id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "requestBody": {
+          "description": "Book's review object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookReviewRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookReviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body / Invalid 'bookId' / No token provided",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid refresh token)",
+            "content": {}
+          },
+          "403": {
+            "description": "Book hasn't been finished yet",
+            "content": {}
+          },
+          "404": {
+            "description": "Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
     }
   },
   "components": {
@@ -303,9 +358,9 @@
                 "description": "User's email",
                 "format": "email"
               },
-              "books": {
+              "goingToRead": {
                 "type": "array",
-                "description": "User's books",
+                "description": "User's books, that hasn't been started yet",
                 "items": {
                   "type": "object",
                   "properties": {
@@ -346,53 +401,93 @@
                   }
                 }
               },
-              "planning": {
-                "type": "object",
-                "properties": {
-                  "startDate": {
-                    "type": "string",
-                    "description": "Planning start date",
-                    "example": "2020-12-31"
-                  },
-                  "endDate": {
-                    "type": "string",
-                    "example": "Planning end date",
-                    "description": "2021-01-15"
-                  },
-                  "books": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "example": "507f1f77bcf86cd799439013",
-                      "description": "Book's id"
-                    }
-                  },
-                  "pagesPerDay": {
-                    "type": "integer",
-                    "example": 7,
-                    "description": "Amount of pages needed to be read per day to complete all books in planning period"
-                  }
-                },
-                "stats": {
+              "currentlyReading": {
+                "type": "array",
+                "description": "User's books, that he's currently reading",
+                "items": {
                   "type": "object",
                   "properties": {
-                    "date": {
+                    "title": {
                       "type": "string",
-                      "description": "Planning period day date",
-                      "example": "2021-01-06"
+                      "example": "The Book of Five Rings",
+                      "description": "Book's title"
                     },
-                    "pagesCount": {
+                    "author": {
                       "type": "string",
-                      "description": "Amount of pages read on this day",
-                      "example": 35
+                      "example": "Miyamoto Musashi",
+                      "description": "Book's author"
+                    },
+                    "publishYear": {
+                      "type": "integer",
+                      "example": 1643,
+                      "description": "Book's publish year"
+                    },
+                    "totalPages": {
+                      "type": "integer",
+                      "example": 110,
+                      "description": "Book's total amount of pages"
+                    },
+                    "pagesFinished": {
+                      "type": "integer",
+                      "example": 110,
+                      "description": "Book's total amount of pages"
+                    },
+                    "_id": {
+                      "type": "string",
+                      "description": "Book's id",
+                      "example": "507f1f77bcf86cd799439013"
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "description": "MongoDB document service versionKey (ignore)"
                     }
                   }
                 },
-                "_id": {
-                  "type": "string",
-                  "description": "Planning id",
-                  "example": "507f1f77bcf86cd799439014"
-                }
+                "example": []
+              },
+              "finishedReading": {
+                "type": "array",
+                "description": "User's books, that he already has finished",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "example": "The Book of Five Rings",
+                      "description": "Book's title"
+                    },
+                    "author": {
+                      "type": "string",
+                      "example": "Miyamoto Musashi",
+                      "description": "Book's author"
+                    },
+                    "publishYear": {
+                      "type": "integer",
+                      "example": 1643,
+                      "description": "Book's publish year"
+                    },
+                    "totalPages": {
+                      "type": "integer",
+                      "example": 110,
+                      "description": "Book's total amount of pages"
+                    },
+                    "pagesFinished": {
+                      "type": "integer",
+                      "example": 110,
+                      "description": "Book's total amount of pages"
+                    },
+                    "_id": {
+                      "type": "string",
+                      "description": "Book's id",
+                      "example": "507f1f77bcf86cd799439013"
+                    },
+                    "__v": {
+                      "type": "integer",
+                      "description": "MongoDB document service versionKey (ignore)"
+                    }
+                  }
+                },
+                "example": []
               },
               "id": {
                 "type": "string",
@@ -460,7 +555,63 @@
         }
       },
       "AddBookResponse": {
-        "required": ["title", "author", "publishYear", "totalPages"],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "example": "The Book of Five Rings",
+            "description": "Book's title"
+          },
+          "author": {
+            "type": "string",
+            "example": "Miyamoto Musashi",
+            "description": "Book's author"
+          },
+          "publishYear": {
+            "type": "integer",
+            "example": 1643,
+            "description": "Book's publish year"
+          },
+          "totalPages": {
+            "type": "integer",
+            "example": 110,
+            "description": "Book's total amount of pages"
+          },
+          "pagesFinished": {
+            "type": "integer",
+            "example": 0,
+            "description": "Book's total amount of pages"
+          },
+          "_id": {
+            "type": "string",
+            "description": "Book's id",
+            "example": "507f1f77bcf86cd799439013"
+          },
+          "__v": {
+            "type": "integer",
+            "description": "MongoDB document service versionKey (ignore)"
+          }
+        }
+      },
+      "BookReviewRequest": {
+        "required": ["rating", "feedback"],
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "integer",
+            "example": 5,
+            "description": "Book's rating",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "feedback": {
+            "type": "string",
+            "example": "Really good book",
+            "description": "Book's feedback"
+          }
+        }
+      },
+      "BookReviewResponse": {
         "type": "object",
         "properties": {
           "title": {
@@ -487,6 +638,18 @@
             "type": "integer",
             "example": 110,
             "description": "Book's total amount of pages"
+          },
+          "rating": {
+            "type": "integer",
+            "example": 5,
+            "description": "Book's rating",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "feedback": {
+            "type": "string",
+            "example": "Really good book",
+            "description": "Book's feedback"
           },
           "_id": {
             "type": "string",

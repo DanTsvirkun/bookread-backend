@@ -4,6 +4,14 @@ import { MongoDBObjectId } from "./types";
 export interface IUser extends Document {
   email: string;
   originUrl: string;
+  books: MongoDBObjectId[];
+  planning: MongoDBObjectId | null;
+  passwordHash?: string;
+}
+
+export interface IUserPopulated extends Document {
+  email: string;
+  originUrl: string;
   books: IBook[];
   planning: MongoDBObjectId | null;
   passwordHash?: string;

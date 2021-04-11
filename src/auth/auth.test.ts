@@ -2,7 +2,11 @@ import mongoose from "mongoose";
 import supertest, { Response } from "supertest";
 import { Application } from "express";
 import jwt from "jsonwebtoken";
-import { IUser, ISession } from "../helpers/typescript-helpers/interfaces";
+import {
+  IUser,
+  IUserPopulated,
+  ISession,
+} from "../helpers/typescript-helpers/interfaces";
 import Server from "../server/server";
 import UserModel from "../REST-entities/user/user.model";
 import SessionModel from "../REST-entities/session/session.model";
@@ -32,7 +36,7 @@ describe("Auth router test suite", () => {
 
   describe("POST /auth/register", () => {
     let response: Response;
-    let createdUser: IUser | null;
+    let createdUser: IUser | IUserPopulated | null;
 
     const validReqBody = {
       email: "test@email.com",
@@ -154,8 +158,9 @@ describe("Auth router test suite", () => {
           sid,
           userData: {
             email: validReqBody.email,
-            books: [],
-            planning: null,
+            goingToRead: [],
+            currentlyReading: [],
+            finishedReading: [],
             id: (user as IUser)._id.toString(),
           },
         });
