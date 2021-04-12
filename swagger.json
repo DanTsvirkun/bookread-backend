@@ -20,6 +20,10 @@
     {
       "name": "Book",
       "description": "Book endpoints"
+    },
+    {
+      "name": "Planning",
+      "description": "Planning endpoints"
     }
   ],
   "paths": {
@@ -217,7 +221,7 @@
             "content": {}
           },
           "401": {
-            "description": "Unauthorized (invalid refresh token)",
+            "description": "Unauthorized (invalid access token)",
             "content": {}
           },
           "404": {
@@ -268,11 +272,125 @@
             "content": {}
           },
           "401": {
-            "description": "Unauthorized (invalid refresh token)",
+            "description": "Unauthorized (invalid access token)",
             "content": {}
           },
           "403": {
             "description": "Book hasn't been finished yet",
+            "content": {}
+          },
+          "404": {
+            "description": "Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/planning": {
+      "post": {
+        "tags": ["Planning"],
+        "summary": "Start planning",
+        "security": [{ "Bearer": [] }],
+        "parameters": [],
+        "requestBody": {
+          "description": "Planning's object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddPlanningRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AddPlanningResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body)",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Planning"],
+        "summary": "Add read pages to the planning",
+        "security": [{ "Bearer": [] }],
+        "parameters": [],
+        "requestBody": {
+          "description": "Pages object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadPagesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadPagesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (invalid request body)",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
+            "content": {}
+          },
+          "404": {
+            "description": "Invalid user / Invalid session",
+            "content": {}
+          }
+        }
+      },
+      "get": {
+        "tags": ["Planning"],
+        "summary": "Load current planning",
+        "security": [{ "Bearer": [] }],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPlanning"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request (no token provided)",
+            "content": {}
+          },
+          "401": {
+            "description": "Unauthorized (invalid access token)",
             "content": {}
           },
           "404": {
@@ -659,6 +777,337 @@
           "__v": {
             "type": "integer",
             "description": "MongoDB document service versionKey (ignore)"
+          }
+        }
+      },
+      "AddPlanningRequest": {
+        "required": ["startDate", "endDate", "books"],
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "example": "2020-12-31",
+            "description": "Planning's start date"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2020-01-05",
+            "description": "Planning's end date"
+          },
+          "books": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "id of the book you want to add to planning"
+            },
+            "example": ["507f1f77bcf86cd799439013"]
+          }
+        }
+      },
+      "AddPlanningResponse": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "example": "2020-12-31",
+            "description": "Planning's start date"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2020-01-05",
+            "description": "Planning's end date"
+          },
+          "books": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "example": "The Book of Five Rings",
+                  "description": "Book's title"
+                },
+                "author": {
+                  "type": "string",
+                  "example": "Miyamoto Musashi",
+                  "description": "Book's author"
+                },
+                "publishYear": {
+                  "type": "integer",
+                  "example": 1643,
+                  "description": "Book's publish year"
+                },
+                "totalPages": {
+                  "type": "integer",
+                  "example": 110,
+                  "description": "Book's total amount of pages"
+                },
+                "pagesFinished": {
+                  "type": "integer",
+                  "example": 0,
+                  "description": "Book's total amount of pages"
+                },
+                "rating": {
+                  "type": "integer",
+                  "example": 5,
+                  "description": "Book's rating",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                "feedback": {
+                  "type": "string",
+                  "example": "Really good book",
+                  "description": "Book's feedback"
+                },
+                "_id": {
+                  "type": "string",
+                  "description": "Book's id",
+                  "example": "507f1f77bcf86cd799439013"
+                },
+                "__v": {
+                  "type": "integer",
+                  "description": "MongoDB document service versionKey (ignore)"
+                }
+              }
+            }
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Duration of planning (in days)",
+            "example": 5
+          },
+          "pagesPerDay": {
+            "type": "integer",
+            "description": "Amount of pages needed to be read each day",
+            "example": 2
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "type": "string",
+                "description": "Planning period day date",
+                "example": "2021-01-06"
+              },
+              "pagesCount": {
+                "type": "string",
+                "description": "Amount of pages read on this day",
+                "example": 35
+              }
+            }
+          },
+          "_id": {
+            "type": "string",
+            "description": "Planning id",
+            "example": "507f1f77bcf86cd799439014"
+          }
+        }
+      },
+      "ReadPagesRequest": {
+        "required": ["pages"],
+        "type": "object",
+        "properties": {
+          "pages": {
+            "type": "integer",
+            "example": 10,
+            "description": "Amount of pages read"
+          }
+        }
+      },
+      "ReadPagesResponse": {
+        "type": "object",
+        "properties": {
+          "book": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "example": "The Book of Five Rings",
+                "description": "Book's title"
+              },
+              "author": {
+                "type": "string",
+                "example": "Miyamoto Musashi",
+                "description": "Book's author"
+              },
+              "publishYear": {
+                "type": "integer",
+                "example": 1643,
+                "description": "Book's publish year"
+              },
+              "totalPages": {
+                "type": "integer",
+                "example": 110,
+                "description": "Book's total amount of pages"
+              },
+              "pagesFinished": {
+                "type": "integer",
+                "example": 10,
+                "description": "Book's total amount of pages"
+              },
+              "_id": {
+                "type": "string",
+                "description": "Book's id",
+                "example": "507f1f77bcf86cd799439013"
+              },
+              "__v": {
+                "type": "integer",
+                "description": "MongoDB document service versionKey (ignore)"
+              }
+            }
+          },
+          "planning": {
+            "type": "object",
+            "properties": {
+              "startDate": {
+                "type": "string",
+                "example": "2020-12-31",
+                "description": "Planning's start date"
+              },
+              "endDate": {
+                "type": "string",
+                "example": "2020-01-05",
+                "description": "Planning's end date"
+              },
+              "books": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "Book's id",
+                  "example": "507f1f77bcf86cd799439013"
+                },
+
+                "duration": {
+                  "type": "integer",
+                  "description": "Duration of planning (in days)",
+                  "example": 5
+                },
+                "pagesPerDay": {
+                  "type": "integer",
+                  "description": "Amount of pages needed to be read each day",
+                  "example": 2
+                },
+                "stats": {
+                  "type": "object",
+                  "properties": {
+                    "date": {
+                      "type": "string",
+                      "description": "Planning period day date",
+                      "example": "2021-01-06"
+                    },
+                    "pagesCount": {
+                      "type": "string",
+                      "description": "Amount of pages read on this day",
+                      "example": 35
+                    }
+                  }
+                },
+                "_id": {
+                  "type": "string",
+                  "description": "Planning id",
+                  "example": "507f1f77bcf86cd799439014"
+                }
+              }
+            }
+          }
+        }
+      },
+      "GetPlanning": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "example": "2020-12-31",
+            "description": "Planning's start date"
+          },
+          "endDate": {
+            "type": "string",
+            "example": "2020-01-05",
+            "description": "Planning's end date"
+          },
+          "books": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "example": "The Book of Five Rings",
+                  "description": "Book's title"
+                },
+                "author": {
+                  "type": "string",
+                  "example": "Miyamoto Musashi",
+                  "description": "Book's author"
+                },
+                "publishYear": {
+                  "type": "integer",
+                  "example": 1643,
+                  "description": "Book's publish year"
+                },
+                "totalPages": {
+                  "type": "integer",
+                  "example": 110,
+                  "description": "Book's total amount of pages"
+                },
+                "pagesFinished": {
+                  "type": "integer",
+                  "example": 0,
+                  "description": "Book's total amount of pages"
+                },
+                "rating": {
+                  "type": "integer",
+                  "example": 5,
+                  "description": "Book's rating",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                "feedback": {
+                  "type": "string",
+                  "example": "Really good book",
+                  "description": "Book's feedback"
+                },
+                "_id": {
+                  "type": "string",
+                  "description": "Book's id",
+                  "example": "507f1f77bcf86cd799439013"
+                },
+                "__v": {
+                  "type": "integer",
+                  "description": "MongoDB document service versionKey (ignore)"
+                }
+              }
+            }
+          },
+          "duration": {
+            "type": "integer",
+            "description": "Duration of planning (in days)",
+            "example": 5
+          },
+          "pagesPerDay": {
+            "type": "integer",
+            "description": "Amount of pages needed to be read each day",
+            "example": 2
+          },
+          "stats": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "type": "string",
+                "description": "Planning period day date",
+                "example": "2021-01-06"
+              },
+              "pagesCount": {
+                "type": "string",
+                "description": "Amount of pages read on this day",
+                "example": 35
+              }
+            }
+          },
+          "_id": {
+            "type": "string",
+            "description": "Planning id",
+            "example": "507f1f77bcf86cd799439014"
           }
         }
       }

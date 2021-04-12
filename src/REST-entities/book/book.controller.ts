@@ -15,7 +15,7 @@ export const addReview = async (req: Request, res: Response) => {
   const { bookId } = req.params;
   const { rating, feedback } = req.body;
   const book = await BookModel.findById(bookId);
-  if (!user?.books.includes(bookId) || !book) {
+  if (!book || !user?.books.includes(bookId)) {
     return res.status(400).send({ message: "Invalid 'bookId'" });
   }
   if (book.pagesFinished !== book.pagesTotal) {

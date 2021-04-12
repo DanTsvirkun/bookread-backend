@@ -32,6 +32,7 @@ export interface IPlanning extends Document {
   endDate: string;
   books: MongoDBObjectId[];
   pagesPerDay: number;
+  duration: number;
   stats: { time: string; pagesCount: number }[];
 }
 
