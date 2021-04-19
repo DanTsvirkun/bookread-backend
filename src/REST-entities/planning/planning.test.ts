@@ -12,7 +12,7 @@ import SessionModel from "../session/session.model";
 import BookModel from "../book/book.model";
 import PlanningModel from "./planning.model";
 
-describe("Book router test suite", () => {
+describe("Planning router test suite", () => {
   let app: Application;
   let createdUser: IUser | IUserPopulated | null;
   let createdPlanning: IPlanning | null;
@@ -51,7 +51,6 @@ describe("Book router test suite", () => {
   afterAll(async () => {
     await UserModel.deleteOne({ email: "test@email.com" });
     await SessionModel.deleteOne({ _id: response.body.sid });
-    await BookModel.deleteOne({ _id: createdBook.body._id });
     await mongoose.connection.close();
   });
 
@@ -60,13 +59,13 @@ describe("Book router test suite", () => {
 
     const validReqBody = {
       startDate: "2020-12-31",
-      endDate: "2021-01-05",
+      endDate: "2025-04-05",
       books: [],
     };
 
     const invalidReqBody = {
       startDate: "2020-12-31",
-      endDate: "2020-13-31",
+      endDate: "2025-13-05",
       books: [],
     };
 
@@ -91,7 +90,6 @@ describe("Book router test suite", () => {
       it("Should return an expected result", () => {
         expect(response.body).toEqual({
           startDate: "2020-12-31",
-          endDate: "2021-01-05",
           books: [
             {
               title: "Test",
@@ -103,8 +101,9 @@ describe("Book router test suite", () => {
               _id: createdBook.body.newBook._id,
             },
           ],
-          duration: 5,
-          pagesPerDay: 2,
+          duration: 1556,
+          endDate: "2025-04-05",
+          pagesPerDay: 1,
           stats: [],
           _id: response.body._id,
         });
@@ -117,7 +116,7 @@ describe("Book router test suite", () => {
       });
     });
 
-    context("With invalidReqBody ('totalPages' is lower than 1)", () => {
+    context("With invalidReqBody ('endDate' is invalid)", () => {
       beforeAll(async () => {
         invalidReqBody.books.push(createdBook.body.newBook._id as never);
         response = await supertest(app)
@@ -193,7 +192,6 @@ describe("Book router test suite", () => {
         createdPlanning = await PlanningModel.findById(
           response.body.planning._id
         );
-        console.log(createdPlanning?.toObject());
       });
 
       it("Should return a 200 status code", () => {
@@ -213,10 +211,10 @@ describe("Book router test suite", () => {
           },
           planning: {
             startDate: "2020-12-31",
-            endDate: "2021-01-05",
             books: [createdBook.body.newBook._id],
-            duration: 5,
-            pagesPerDay: 2,
+            duration: 1556,
+            endDate: "2025-04-05",
+            pagesPerDay: 1,
             stats: [
               { time: response.body.planning.stats[0].time, pagesCount: 10 },
             ],
@@ -281,6 +279,11 @@ describe("Book router test suite", () => {
   describe("GET /planning", () => {
     let response: Response;
 
+    afterAll(async () => {
+      await PlanningModel.deleteOne({ _id: createdPlanning?._id });
+      await BookModel.deleteOne({ _id: createdBook.body.newBook._id });
+    });
+
     it("Init endpoint testing", () => {
       expect(true).toBe(true);
     });
@@ -300,7 +303,6 @@ describe("Book router test suite", () => {
         expect(response.body).toEqual({
           planning: {
             startDate: "2020-12-31",
-            endDate: "2021-01-05",
             books: [
               {
                 __v: 0,
@@ -312,8 +314,9 @@ describe("Book router test suite", () => {
                 title: "Test",
               },
             ],
-            duration: 5,
-            pagesPerDay: 2,
+            duration: 1556,
+            endDate: "2025-04-05",
+            pagesPerDay: 1,
             stats: [
               { time: response.body.planning.stats[0].time, pagesCount: 10 },
             ],
