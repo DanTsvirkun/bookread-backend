@@ -175,6 +175,7 @@ describe("Book router test suite", () => {
 
     context("With validReqBody", () => {
       beforeAll(async () => {
+        console.log(`/book/review/${createdBook?._id}`);
         response = await supertest(app)
           .patch(`/book/review/${createdBook?._id}`)
           .set("Authorization", `Bearer ${accessToken}`)
