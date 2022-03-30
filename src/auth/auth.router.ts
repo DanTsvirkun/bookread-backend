@@ -21,7 +21,7 @@ const signUpSchema = Joi.object({
 
 const signInSchema = Joi.object({
   email: Joi.string().min(2).max(254).required(),
-  password: Joi.string().min(8).required(),
+  password: Joi.string().min(8).max(100).required()
 });
 
 const refreshTokensSchema = Joi.object({

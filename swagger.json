@@ -235,7 +235,7 @@
         }
       }
     },
-    "/book/review/{bookId}": {
+    "/book/review": {
       "patch": {
         "tags": ["Book"],
         "summary": "Add book's review",
