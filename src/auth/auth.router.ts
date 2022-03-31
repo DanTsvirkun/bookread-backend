@@ -16,7 +16,7 @@ import {
 const signUpSchema = Joi.object({
   name: Joi.string().min(2).max(254).required(),
   email: Joi.string().min(2).max(254).required(),
-  password: Joi.string().min(8).required(),
+  password: Joi.string().min(8).max(100).required(),
 });
 
 const signInSchema = Joi.object({
